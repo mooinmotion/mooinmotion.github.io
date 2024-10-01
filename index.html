@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Moo in Motion</title>
+        <title>🐄💨 Moo in Motion</title>
         <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -21,7 +21,7 @@
     </head>
     <body>
         <div class="header">
-            <h2>Moo in Motion</h2>
+            <h2>🐄💨 Moo in Motion</h2>
         </div>
         <div class="flexbox">
             <div class="flexchild">
@@ -30,8 +30,27 @@
             <div class="flexchild">
                 <div id="map-selectors">
                     <h3>What Line?</h3>
+                    <select id="lines">
+                        <option value="" disabled selected>
+                            Select a line
+                        </option>
+                    </select>
+                    <h3>Which Stop?</h3>
+                    <select id="stops">
+                        <option value="" disabled selected>
+                            Select a line to populate stops.
+                        </option>
+                    </select>
+                    <h3 id="eta" hidden>The bus will arrive in: NA minutes.</h3>
                 </div>
             </div>
+        </div>
+        <div class="disclaimer">
+            <small>
+                Bus data copyright Unitrans ASUCD/City of Davis 2024. No private
+                location data is stored by this website; all map information is
+                retrieved locally.
+            </small>
         </div>
         <!--Note, script must be last, otherwise the map will not load properly -->
         <script src="main.js"></script>
