@@ -36,10 +36,11 @@ document.getElementById("lines").addEventListener("change", async function () {
   // upon line change, clear the stop selection and clear stops.
   // also reset map zoom
   const stops = document.getElementById("stops");
-  while (stops.childNodes.length > 1) {
-    stops.removeChild(stops.lastChild);
+  while (stops.childElementCount > 1) {
+    stops.removeChild(stops.lastElementChild);
   }
-  document.getElementById("stops").selectedIndex = 0;
+  stops.selectedIndex = 0;
+  stops.firstElementChild.text = "Select a stop";
   map.setView([38.54593, -121.73615], 13);
 
   console.log(`Now displaying line: ${document.getElementById("lines").value}`);
@@ -84,7 +85,6 @@ document.getElementById("lines").addEventListener("change", async function () {
         stopSelect.appendChild(option);
       }
     }
-    stopSelect[0].text = "Select a stop";
   } catch (error) {
     throw new Error(`${error}`);
   }
