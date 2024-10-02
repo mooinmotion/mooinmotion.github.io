@@ -34,11 +34,13 @@ async function populateBusLines() {
 // Line selected
 document.getElementById("lines").addEventListener("change", async function () {
   // upon line change, clear the stop selection and clear stops.
+  // also reset map zoom
   const stops = document.getElementById("stops");
   while (stops.childNodes.length > 1) {
     stops.removeChild(stops.lastChild);
   }
   document.getElementById("stops").selectedIndex = 0;
+  map.setView([38.54593, -121.73615], 13);
 
   console.log(`Now displaying line: ${document.getElementById("lines").value}`);
   stopsLayer.clearLayers();
