@@ -109,6 +109,7 @@ document.getElementById("stops").addEventListener("change", async function () {
 });
 
 async function updateBusPos() {
+  busLayer.clearLayers();
   const url =
     "https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=unitrans&t=0";
 
