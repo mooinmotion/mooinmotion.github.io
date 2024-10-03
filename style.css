@@ -22,6 +22,8 @@ select {
 
 body {
     font-family: "B612";
+    background-color: #1c1b22;
+    color: white;
 }
 
 .flexbox {
