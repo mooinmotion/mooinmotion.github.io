@@ -13,6 +13,13 @@ select {
     padding: 5px 10px;
 }
 
+.messages {
+    background-color: red;
+    border-color: white;
+    padding: 10px;
+    margins: 10px;
+}
+
 body {
     font-family: "B612";
 }

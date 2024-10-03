@@ -1,3 +1,5 @@
+const parser = new DOMParser();
+
 async function populateBusLines() {
   const url =
     "https://retro.umoiq.com/service/publicXMLFeed?command=routeList&a=unitrans";
@@ -8,7 +10,6 @@ async function populateBusLines() {
     }
 
     const result = await response.text();
-    const parser = new DOMParser();
     const busLinesXml = parser.parseFromString(result, "text/xml");
 
     const busLinesSelect = document.getElementById("lines");
@@ -54,7 +55,6 @@ document.getElementById("lines").addEventListener("change", async function () {
     }
 
     const result = await response.text();
-    const parser = new DOMParser();
     const busStopsXml = parser.parseFromString(result, "text/xml");
 
     const stopSelect = document.getElementById("stops");
@@ -108,6 +108,53 @@ document.getElementById("stops").addEventListener("change", async function () {
   );
 });
 
+async function updateBusPos() {
+  const url =
+    "https://retro.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=unitrans&t=0";
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+
+    const result = await response.text();
+
+    const busPositionsXml = parser.parseFromString(result, "text/xml");
+    const busPositions = busPositionsXml.getElementsByTagName("vehicle");
+
+    for (let i = 0; i < busPositions.length; i++) {
+      L.marker(
+        [
+          busPositions[i].getAttribute("lat"),
+          busPositions[i].getAttribute("lon"),
+        ],
+        { icon: busIcon },
+      )
+        .addTo(busLayer)
+        .bindPopup(
+          `
+              <b>ID: ${busPositions[i].getAttribute("id")}</b>
+              <br>
+              <b>Route: ${busPositions[i].getAttribute("routeTag")}</b>
+              <br>
+              <b>Data Age: ${busPositions[i].getAttribute("secsSinceReport")} sec</b>
+              <br>
+              <b>Speed: ${Math.round(busPositions[i].getAttribute("speedKmHr") / 1.609)} MPH</b>
+              `,
+        )
+        .on("click", function () {
+          map.setView([
+            busPositions[i].getAttribute("lat"),
+            busPositions[i].getAttribute("lon"),
+          ]);
+        });
+    }
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+}
+
 // Initialize the map and default view of Davis
 const map = L.map("map").setView([38.54593, -121.73615], 13);
 map.attributionControl.setPrefix(
@@ -119,6 +166,16 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
 const stopsLayer = L.layerGroup().addTo(map);
+const busLayer = L.layerGroup().addTo(map);
+var busIcon = L.icon({
+  iconUrl: "bus.png",
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, 0],
+});
 
 // Initialize the bus lines.
 populateBusLines();
+// Set up bus tracking
+updateBusPos();
+setInterval(updateBusPos, 10000);
