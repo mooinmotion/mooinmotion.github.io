@@ -103,7 +103,7 @@ document.getElementById("lines").addEventListener("change", async function () {
   stops.firstElementChild.text = "Select a stop";
   map.setView([38.54593, -121.73615], 13);
   // upon line change, kill the predictor and flush list.
-  if (stopPredictionIntervalId !== null) {
+  if (stopPredictionIntervalId !== undefined) {
     clearInterval(stopPredictionIntervalId);
     const etas = document.getElementById("etas");
     while (etas.childElementCount > 0) {
@@ -179,14 +179,15 @@ document.getElementById("stops").addEventListener("change", async function () {
   );
 
   // call predictions
-  if (stopPredictionIntervalId !== null) {
+  if (stopPredictionIntervalId !== undefined) {
+    console.log(`Stopping ${stopPredictionIntervalId}`);
     clearInterval(stopPredictionIntervalId);
   }
   populatePredictions(
     currentStop.getAttribute("data-stopid"),
     document.getElementById("lines").value,
   );
-  setInterval(function () {
+  stopPredictionIntervalId = setInterval(function () {
     populatePredictions(
       currentStop.getAttribute("data-stopid"),
       document.getElementById("lines").value,
