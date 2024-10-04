@@ -24,6 +24,7 @@ body {
     font-family: "B612";
     background-color: #1c1b22;
     color: white;
+    padding: calc(100vw * 0.01);
 }
 
 .flexbox {
@@ -37,8 +38,20 @@ body {
     flex: 1;
 }
 
+#etaDesc {
+    color: red;
+}
+
+#etas {
+    list-style-type: none;
+}
+
 @media (max-width: 1000px) {
     .flexbox {
         flex-direction: column;
+    }
+    select {
+        height: 40px;
+        width: 100%;
     }
 }

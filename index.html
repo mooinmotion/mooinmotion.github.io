@@ -32,9 +32,9 @@
             <div class="flexchild">
                 <div id="map"></div>
                 <small>
-                    Bus data copyright Unitrans ASUCD/City of Davis 2024. Bus
-                    emoji designed by OpenMoji.org - the open-source emoji and
-                    icon project. License:
+                    Bus data copyright Unitrans ASUCD/City of Davis 2024. <br />
+                    Bus emoji designed by OpenMoji.org - the open-source emoji
+                    and icon project. License:
                     <a href="https://creativecommons.org/licenses/by-sa/4.0/#"
                         >CC BY-SA 4.0</a
                     ><br />
@@ -56,7 +56,12 @@
                             Select a line to populate stops.
                         </option>
                     </select>
-                    <h3 id="eta" hidden>The bus will arrive in: NA minutes.</h3>
+                    <h1 id="etaDesc" hidden>The bus arrives in...</h1>
+                    <ol id="etas"></ol>
+                    <h4 id="etaDisclaimer" hidden>
+                        If the direction you want is not available, try checking
+                        the stop across the street!
+                    </h4>
                 </div>
             </div>
         </div>

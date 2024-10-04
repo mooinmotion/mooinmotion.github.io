@@ -1,4 +1,6 @@
+// TODO: allow the user to switch stops from clicking on icons.
 const parser = new DOMParser();
+let stopPredictionIntervalId;
 
 async function populateBusLines() {
   const url =
@@ -32,6 +34,63 @@ async function populateBusLines() {
   }
 }
 
+async function populatePredictions(stopId, line) {
+  // Wipe predictions on refresh.
+  const etas = document.getElementById("etas");
+  while (etas.childElementCount > 0) {
+    etas.removeChild(etas.lastElementChild);
+  }
+  const url = `https://retro.umoiq.com/service/publicXMLFeed?command=predictions&a=unitrans&stopId=${stopId}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+
+    const result = await response.text();
+    const predictionsXml = parser.parseFromString(result, "text/xml");
+    const etaDesc = document.getElementById("etaDesc");
+    etaDesc.innerHTML = "The bus arrives in...";
+    etaDesc.removeAttribute("hidden");
+    const etaDisc = document.getElementById("etaDisclaimer");
+    etaDisc.removeAttribute("hidden");
+
+    const predictionsCount =
+      predictionsXml.getElementsByTagName("prediction").length; // NOTE: This variable does NOT provide an array of predictions, just how many.
+    if (predictionsCount !== 0) {
+      // Predictions available, not necessarily for this line.
+      const predictions = predictionsXml.getElementsByTagName("predictions");
+      // Actual "predictions" node, not "prediction"
+
+      for (let i = 0; i < predictions.length; i++) {
+        // we are now inside one "predictions"
+        let direction = predictions[i].getElementsByTagName("direction");
+        if (direction.length !== 0) {
+          direction = direction[0].getAttribute("title");
+        }
+        const predictionList =
+          predictions[i].getElementsByTagName("prediction");
+        for (let j = 0; j < predictionList.length; j++) {
+          let prediction = document.createElement("li");
+          prediction.innerHTML = `<b>${direction} on ${predictions[i].getAttribute("routeTag")}:
+            ${predictionList[j].getAttribute("minutes")}
+            minutes</b>`;
+          if (predictions[i].getAttribute("routeTag") === line) {
+            prediction.value = 1;
+          }
+          etas.appendChild(prediction);
+        }
+      }
+    } else {
+      console.log("No predictions.");
+      document.getElementById("etaDesc").innerHTML =
+        "There are no buses available!";
+    }
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+}
+
 // Line selected
 document.getElementById("lines").addEventListener("change", async function () {
   // upon line change, clear the stop selection and clear stops.
@@ -43,6 +102,15 @@ document.getElementById("lines").addEventListener("change", async function () {
   stops.selectedIndex = 0;
   stops.firstElementChild.text = "Select a stop";
   map.setView([38.54593, -121.73615], 13);
+  // upon line change, kill the predictor and flush list.
+  if (stopPredictionIntervalId !== null) {
+    clearInterval(stopPredictionIntervalId);
+    const etas = document.getElementById("etas");
+    while (etas.childElementCount > 0) {
+      etas.removeChild(etas.lastElementChild);
+    }
+    document.getElementById("etaDesc").setAttribute("hidden", "");
+  }
 
   console.log(`Now displaying line: ${document.getElementById("lines").value}`);
   stopsLayer.clearLayers();
@@ -82,6 +150,10 @@ document.getElementById("lines").addEventListener("change", async function () {
         option.value = stopSection[i].getAttribute("tag");
         option.setAttribute("data-lat", stopSection[i].getAttribute("lat"));
         option.setAttribute("data-lon", stopSection[i].getAttribute("lon"));
+        option.setAttribute(
+          "data-stopid",
+          stopSection[i].getAttribute("stopId"),
+        );
         stopSelect.appendChild(option);
       }
     }
@@ -97,7 +169,6 @@ document.getElementById("stops").addEventListener("change", async function () {
       document.getElementById("stops").selectedIndex
     ];
   console.log(`Now displaying stop: ${currentStop.value}`);
-  console.log(currentStop.getAttribute("data-lon"));
 
   map.setView(
     [
@@ -106,6 +177,21 @@ document.getElementById("stops").addEventListener("change", async function () {
     ],
     20,
   );
+
+  // call predictions
+  if (stopPredictionIntervalId !== null) {
+    clearInterval(stopPredictionIntervalId);
+  }
+  populatePredictions(
+    currentStop.getAttribute("data-stopid"),
+    document.getElementById("lines").value,
+  );
+  setInterval(function () {
+    populatePredictions(
+      currentStop.getAttribute("data-stopid"),
+      document.getElementById("lines").value,
+    );
+  }, 60000); // refresh every minute
 });
 
 async function updateBusPos() {
