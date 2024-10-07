@@ -50,7 +50,7 @@ async function populatePredictions(stopId, line) {
     const result = await response.text();
     const predictionsXml = parser.parseFromString(result, "text/xml");
     const etaDesc = document.getElementById("etaDesc");
-    etaDesc.innerHTML = "The bus arrives in...";
+    etaDesc.innerHTML = "A bus will arrive in...";
     etaDesc.removeAttribute("hidden");
     const etaDisc = document.getElementById("etaDisclaimer");
     etaDisc.removeAttribute("hidden");
@@ -72,12 +72,21 @@ async function populatePredictions(stopId, line) {
           predictions[i].getElementsByTagName("prediction");
         for (let j = 0; j < predictionList.length; j++) {
           let prediction = document.createElement("li");
-          prediction.innerHTML = `<b>${direction} on ${predictions[i].getAttribute("routeTag")}:
-            ${predictionList[j].getAttribute("minutes")}
-            minutes</b>`;
+          if (predictions[i].getAttribute("routeTag") == line) {
+            prediction.innerHTML = `<font color="red"><b>${direction} on ${predictions[i].getAttribute("routeTag")}:
+              ${predictionList[j].getAttribute("minutes")}
+              minutes</b></font>`;
+          } else {
+            prediction.innerHTML = `${direction} on ${predictions[i].getAttribute("routeTag")}:
+              ${predictionList[j].getAttribute("minutes")}
+              minutes`;
+          }
+
+          /*
           if (predictions[i].getAttribute("routeTag") === line) {
             prediction.value = 1;
           }
+          */
           etas.appendChild(prediction);
         }
       }
