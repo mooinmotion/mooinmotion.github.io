@@ -1,4 +1,12 @@
-// TODO: allow the user to switch stops from clicking on icons.
+/*
+TODOs:
+allow the user to switch stops from clicking on icons.
+fix ordering of the stop selection
+follow the bus when clicked
+get distance to nearest bus
+add changelog page
+add github repo button
+*/
 const parser = new DOMParser();
 let stopPredictionIntervalId;
 

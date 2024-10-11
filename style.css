@@ -13,6 +13,10 @@ select {
     padding: 5px 10px;
 }
 
+.header-child {
+    display: inline-block;
+}
+
 .messages {
     background-color: red;
     border-color: white;
