@@ -1,7 +1,6 @@
 /*
 TODOs:
 fix ordering of the prediction selection
-follow the bus when clicked
 get distance to nearest bus
 */
 
@@ -259,12 +258,11 @@ async function updateBusPos() {
     }
 
     const result = await response.text();
-
     const busPositionsXml = parser.parseFromString(result, "text/xml");
     const busPositions = busPositionsXml.getElementsByTagName("vehicle");
 
     for (let i = 0; i < busPositions.length; i++) {
-      L.marker(
+      const marker = L.marker(
         [
           busPositions[i].getAttribute("lat"),
           busPositions[i].getAttribute("lon"),
@@ -288,7 +286,11 @@ async function updateBusPos() {
             busPositions[i].getAttribute("lat"),
             busPositions[i].getAttribute("lon"),
           ]);
+          selectedBus = busPositions[i].getAttribute("id");
         });
+      if (selectedBus == busPositions[i].getAttribute("id")) {
+        marker.fire("click");
+      }
     }
   } catch (error) {
     throw new Error(`${error}`);
@@ -313,7 +315,9 @@ var busIcon = L.icon({
   iconAnchor: [25, 25],
   popupAnchor: [0, 0],
 });
-
+map.on("click", function (e) {
+  selectedBus = null;
+});
 // Function calls
 
 // Get important messages
