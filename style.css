@@ -17,7 +17,7 @@ select {
     display: inline-block;
 }
 
-.messages {
+.messagesDiv {
     background-color: red;
     border-color: white;
     padding: 10px;

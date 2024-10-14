@@ -1,14 +1,48 @@
 /*
 TODOs:
-allow the user to switch stops from clicking on icons.
-fix ordering of the stop selection
+fix ordering of the prediction selection
 follow the bus when clicked
 get distance to nearest bus
-add changelog page
-add github repo button
 */
+
 const parser = new DOMParser();
 let stopPredictionIntervalId;
+
+async function retrieveMessages() {
+  const url =
+    "https://retro.umoiq.com/service/publicXMLFeed?command=messages&a=unitrans";
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+
+    const result = await response.text();
+    const messagesXml = parser.parseFromString(result, "text/xml");
+
+    const messages = messagesXml.getElementsByTagName("message");
+    if (messages.length > 0) {
+      const messagesDiv = document.getElementsByClassName("messagesDiv")[0];
+      messagesDiv.removeAttribute("hidden");
+      const messagesList = document.getElementById("messages");
+      for (let i = 0; i < messages.length; i++) {
+        const line = messages[i]
+          .getElementsByTagName("routeConfiguredForMessage")[0]
+          .getAttribute("tag");
+        const messageText =
+          messages[i].getElementsByTagName("text")[0].innerHTML;
+
+        const message = document.createElement("li");
+        message.innerHTML = `Line ${line}: ${messageText}`;
+        messagesList.appendChild(message);
+      }
+    }
+
+    console.log(`Got messages.`);
+  } catch (error) {
+    throw new Error(`${error}`);
+  }
+}
 
 async function populateBusLines() {
   const url =
@@ -212,6 +246,7 @@ document.getElementById("stops").addEventListener("change", async function () {
   }, 60000); // refresh every minute
 });
 
+let selectedBus = null;
 async function updateBusPos() {
   busLayer.clearLayers();
   const url =
@@ -234,7 +269,7 @@ async function updateBusPos() {
           busPositions[i].getAttribute("lat"),
           busPositions[i].getAttribute("lon"),
         ],
-        { icon: busIcon },
+        { icon: busIcon, title: `${busPositions[i].getAttribute("id")}` },
       )
         .addTo(busLayer)
         .bindPopup(
@@ -279,6 +314,10 @@ var busIcon = L.icon({
   popupAnchor: [0, 0],
 });
 
+// Function calls
+
+// Get important messages
+retrieveMessages();
 // Initialize the bus lines.
 populateBusLines();
 // Set up bus tracking
