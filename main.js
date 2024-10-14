@@ -287,6 +287,9 @@ async function updateBusPos() {
             busPositions[i].getAttribute("lon"),
           ]);
           selectedBus = busPositions[i].getAttribute("id");
+        })
+        .on("popupclose", function () {
+          selectedBus = null;
         });
       if (selectedBus == busPositions[i].getAttribute("id")) {
         marker.fire("click");
